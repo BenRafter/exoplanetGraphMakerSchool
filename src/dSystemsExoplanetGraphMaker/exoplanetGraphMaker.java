@@ -14,6 +14,17 @@ public class exoplanetGraphMaker {
 		System.out.println(x);
 	}
 	
+	public static JSONArray removeNulls(JSONArray target) {
+		JSONArray ret = new JSONArray();
+		for(int i = 0; i < target.size(); i++) {
+			JSONObject currentJSON = (JSONObject) target.get(i);
+			if(currentJSON.get("pl_orbper") != null && currentJSON.get("pl_orbeccen") != null) {
+				ret.add(currentJSON);
+			}
+		}
+		return ret;
+	}
+	
 	public static void main(String[] args) {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		Boolean commandQuit = false;
@@ -31,20 +42,11 @@ public class exoplanetGraphMaker {
 					print("status:quitting"); 
 					commandQuit = true;
 				}else if(command.equals("command:plot,xAxis:pl_orbper,yAxis:pl_orbeccen")) {
-					print("Doing graph plot");
 					String contents = Jsoup.connect(url).ignoreContentType(true).execute().body();
 					JSONParser parser = new JSONParser();
 					Object obj = parser.parse(contents);
 					JSONArray jsonArray = (JSONArray) obj;
-					for(int i = 0; i < jsonArray.size(); i++) {
-						JSONObject currentJSON = (JSONObject) jsonArray.get(i);
-						if(currentJSON.get("pl_orbper") != null && currentJSON.get("pl_orbeccen") != null) {
-							print("Acceptable planet " + currentJSON);
-						}else {
-							print("Not an acceptable planet " + currentJSON);
-						}
-					}
-					//String test = (String) jsonObj.get("pl_name");
+					JSONArray removedNulls = removeNulls(jsonArray);
 				}else {
 					print("Please enter a valid command");
 				}
