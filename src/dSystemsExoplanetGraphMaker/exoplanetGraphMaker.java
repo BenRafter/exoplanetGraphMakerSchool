@@ -2,6 +2,7 @@ package dSystemsExoplanetGraphMaker;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -36,7 +37,12 @@ public class exoplanetGraphMaker {
 					Object obj = parser.parse(contents);
 					JSONArray jsonArray = (JSONArray) obj;
 					for(int i = 0; i < jsonArray.size(); i++) {
-						print(jsonArray.get(i));
+						JSONObject currentJSON = (JSONObject) jsonArray.get(i);
+						if(currentJSON.get("pl_orbper") != null && currentJSON.get("pl_orbeccen") != null) {
+							print("Acceptable planet " + currentJSON);
+						}else {
+							print("Not an acceptable planet " + currentJSON);
+						}
 					}
 					//String test = (String) jsonObj.get("pl_name");
 				}else {
