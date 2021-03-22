@@ -32,9 +32,7 @@ public class exoplanetGraphMaker {
 		String fileName = "jsonText.txt";
 		try {
 			File retFile = new File(fileName);
-			if(retFile.createNewFile()) {
-				print("jsonText.txt created");
-			}
+			retFile.createNewFile();
 			FileWriter writer = new FileWriter(fileName);
 			writer.write("0 " + target.size() + "\n");
 			for(int i = 0; i < target.size(); i++) {
@@ -50,21 +48,28 @@ public class exoplanetGraphMaker {
 		return fileName;
 	}
 	
-	public static String runGnu(JSONArray target) {//This creates the gnuplot script
+	public static String runGnu(JSONArray target, String gnuFilePath) {//This creates the gnuplot script
 		String dataFile = createJSONTextfile(target);
 		String ret = "";
 		String fileName = "myScript.plt";
 		try {
 			File retFile = new File(fileName);
-			if(retFile.createNewFile()) {
-				print("Script created");
-			}
+			retFile.createNewFile();
 			FileWriter writer = new FileWriter(fileName);
+			writer.write("set terminal png size 500,500\n");
 			writer.write("set output 'scatterPlot.png'\n");
 			writer.write("plot '" + dataFile + "'"); 
 			writer.close();
 		}catch (Exception e) {
 			print("Failed to create script");
+		}
+		
+		String gnuplotFilePath = gnuFilePath + " " + fileName ;
+		try {
+			Runtime cp = Runtime.getRuntime();
+			Process pr = cp.exec(gnuplotFilePath);
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 		return ret;
 	}
@@ -72,20 +77,11 @@ public class exoplanetGraphMaker {
 	public static void main(String[] args) {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		Boolean commandQuit = false;
-		String gnuplotFilePath = "\"C:\\Program Files\\gnuplot\\bin\\gnuplot.exe\" \"C:\\\\Users\\\\braft\\\\OneDrive\\\\Desktop\\\\test\\\\sin.plt\"";
-		try {
-			Runtime cp = Runtime.getRuntime();
-			Process pr = cp.exec(gnuplotFilePath);
-		}catch (Exception e) {
-			
-		}
 		print("Running....");
-		
 		String url = args[0];
+		String gnuFilePath = args[1];
 		url.replaceAll("\"", " ");//Get url and remove " "
 		try {
-			
-			
 			while(!commandQuit.equals(true)) {
 				print("Enter command please");
 				String command = br.readLine();
@@ -98,8 +94,9 @@ public class exoplanetGraphMaker {
 					Object obj = parser.parse(contents);
 					JSONArray jsonArray = (JSONArray) obj;
 					JSONArray removedNulls = removeNulls(jsonArray);
-					String fileName = runGnu(removedNulls);
-					print(fileName);
+					runGnu(removedNulls, gnuFilePath);
+					print("status:success;imageFileName:scatterPlot.png");
+					commandQuit = true;
 				}else {
 					print("Please enter a valid command");
 				}
